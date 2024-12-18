@@ -23,6 +23,8 @@ public abstract class SettingsPlugin : Plugin<Settings> {
   }
 
   private fun Settings.shouldPublishBuildScans(): Boolean {
+    if (System.getenv("CI") == "true") { return true }
+
     val localProperties = Properties()
     var publishBuildScans = false
 
