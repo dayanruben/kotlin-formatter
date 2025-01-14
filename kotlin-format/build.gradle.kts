@@ -23,7 +23,7 @@ dependencies {
 }
 
 val javaTarget = JavaLanguageVersion.of(libs.versions.java.get())
-val artifactId = "kotlin-formatter"
+val artifactName = "kotlin-formatter"
 
 java {
   toolchain {
@@ -72,7 +72,7 @@ tasks.register("buildBinary", Sync::class.java) {
 // Publishing Configuration
 // ----------------------
 mavenPublishing {
-  coordinates(group.toString(), artifactId, version.toString())
+  coordinates(group.toString(), artifactName, version.toString())
   publishToMavenCentral(SonatypeHost.S01, automaticRelease = true)
   signAllPublications()
 
@@ -109,7 +109,7 @@ mavenPublishing {
 publishing {
   publications {
     create<MavenPublication>("distZip") {
-      artifactId = "$artifactId-dist"
+      artifactId = "$artifactName-dist"
       artifact(tasks.shadowDistZip)
     }
   }
