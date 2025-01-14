@@ -51,7 +51,6 @@ version = providers.gradleProperty("VERSION").get()
 val shadowJar = tasks.named("shadowJar", ShadowJar::class) {
   group = "Build"
   description = "Creates a fat jar"
-  archiveFileName = "$artifactId-all.jar"
   isPreserveFileTimestamps = false
   isReproducibleFileOrder = true
 
