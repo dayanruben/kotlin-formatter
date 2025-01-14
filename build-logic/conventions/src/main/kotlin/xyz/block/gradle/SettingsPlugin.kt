@@ -34,7 +34,7 @@ public abstract class SettingsPlugin : Plugin<Settings> {
         localProperties.load(it)
       }
 
-      publishBuildScans = localProperties.getProperty("kotlin.editor.build.scans.enable")
+      publishBuildScans = localProperties.getProperty("kotlin.formatter.build.scans.enable")
         ?.toBoolean()
         ?: false
     }
