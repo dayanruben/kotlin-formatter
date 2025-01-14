@@ -1,24 +1,44 @@
 name: publish
 
 on:
-  workflow_dispatch:
-    inputs:
-      reason:
-        description: 'Reason for manual run'
-        required: false
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
+  release_version:
+    runs-on: ubuntu-latest
+    if: github.repository == 'block/kotlin-formatter'
+    outputs:
+      version: ${{ steps.release_version.outputs.version }}
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v4
+
+      - name: Extract release version
+        id: release_version
+        run: |
+          VERSION=$(grep "^VERSION=" gradle.properties | cut -d'=' -f2 | xargs)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Validate tag matches release version
+        run: |
+          if [[ "${{ github.ref_name }}" != "${{ steps.release_version.outputs.version }}" ]]; then
+            echo "Error: Tag '${{ github.ref_name }}' does not match expected version '${{ steps.release_version.outputs.version }}'."
+            exit 1
+          fi
+
   publish:
+    needs: release_version
     env:
       ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_SECRET_KEY }}
       ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.GPG_SECRET_PASSPHRASE }}
       ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_USERNAME_XYZ_BLOCK }}
       ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_PASSWORD_XYZ_BLOCK }}
     runs-on: ubuntu-latest
-    if: github.repository == 'block/kotlin-formatter' && github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout the repo
@@ -44,3 +64,28 @@ jobs:
 
       - name: Publish artifacts
         run: './gradlew publishToMavenCentral -s --no-configuration-cache'
+
+      - name: Prepare assets for Github Release
+        run: |
+          echo "Renaming assets to match Maven Central naming conventions."
+          mv kotlin-format/build/libs/kotlin-format-${{ needs.release_version.outputs.version }}-all.jar kotlin-format/build/libs/kotlin-formatter-${{ needs.release_version.outputs.version }}-all.jar
+          mv kotlin-format/build/distributions/kotlin-format-shadow-${{ needs.release_version.outputs.version }}.zip kotlin-format/build/distributions/kotlin-formatter-dist-${{ needs.release_version.outputs.version }}.zip
+
+      - name: Extract release notes
+        id: release_notes
+        uses: ffurrer2/extract-release-notes@v2
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.release_version.outputs.version }}
+          name: ${{ needs.release_version.outputs.version }}
+          body: |
+            ${{ steps.release_notes.outputs.release_notes }}
+          draft: false
+          prerelease: false
+          files: |
+            kotlin-format/build/libs/kotlin-formatter-${{ needs.release_version.outputs.version }}-all.jar
+            kotlin-format/build/distributions/kotlin-formatter-dist-${{ needs.release_version.outputs.version }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
