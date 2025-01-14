@@ -8,13 +8,13 @@ Release procedure for Kotlin Formatter
    ```md
    ## [Unreleased]
 
-   New:
+   ### New:
    - Nothing yet!
 
-   Changed:
+   ### Changed:
    - Nothing yet!
 
-   Fixed:
+   ### Fixed:
    - Nothing yet!
    ```
 
@@ -32,6 +32,8 @@ Release procedure for Kotlin Formatter
    $ git push && git push --tags
    ```
 The tag will trigger a GitHub Action workflow which will upload the artifacts to Maven Central and create a GitHub release
+
+
 7. Once publish is done, update version number `gradle.properties` to next snapshot version (x.y.z-SNAPSHOT)
 8. Commit and push
    ```
