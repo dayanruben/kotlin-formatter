@@ -53,6 +53,12 @@ kotlin.editor.build.scans.enable=true
 
 This file should not be checked into version control.
 
+## Dependency Updates
+
+This project is configured to use RenovateBot through the config file `./renovate.json` and the Renovate GitHub Application installed in the `block` organization. When a new version of dependency is released, Renovate will open a PR to update the
+dependant version. There are a lot of available options, but the defaults are pretty safe. The available options are documented in
+the [RenovateBot docs](https://docs.renovatebot.com).
+
 ---
 
 ## Communications
