@@ -48,7 +48,7 @@ This project is configured to publish build scans to the public
 enabled by creating a `local.properties` file with the following contents:
 
 ```properties
-kotlin.editor.build.scans.enable=true
+kotlin.formatter.build.scans.enable=true
 ```
 
 This file should not be checked into version control.
