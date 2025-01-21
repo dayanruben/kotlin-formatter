@@ -12,7 +12,7 @@ mordant = "2.7.2"
 shadow = "8.3.5"
 
 [libraries]
-assertj = { module = "org.assertj:assertj-core", version = "3.26.3" }
+assertj = { module = "org.assertj:assertj-core", version = "3.27.3" }
 clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
 dependencyAnalysisPlugin = { module = "com.autonomousapps:dependency-analysis-gradle-plugin", version.ref = "dependencyAnalysis" }
 develocityPlugin = { module = "com.gradle:develocity-gradle-plugin", version.ref = "develocity" }
