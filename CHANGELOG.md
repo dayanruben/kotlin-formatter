@@ -11,6 +11,15 @@
 ### Fixed:
 - Nothing yet!
 
+## [1.0.2] - 2025-01-30
+
+### Changed:
+- Updated to gradle 8.12.1, kotlin 2.1.10.
+- Update other dependencies (except ktfmt) to newest available versions.
+
+### Fixed:
+- Incorrect property in CONTRIBUTING.md
+
 ## [1.0.1] - 2025-01-14
 
 ### Changed: 
