@@ -37,15 +37,36 @@ kotlin-format [OPTIONS] [FILES...]
 |---------------|--------------------------------------------|
 | `<files>`     | Files or directories to format. Use `-` for standard input. |
 
-## CLI
-A fat jar of the CLI is available on Maven Central. To download the CLI, replace `$version` with the latest version number in the following URL:
+## Installing CLI
 
+There are multiple ways to install and use the Kotlin Formatter CLI:
+
+### 1. Using [Hermit](https://github.com/cashapp/hermit)
+If you don't have Hermit installed, follow the [Hermit Getting Started Guide](https://cashapp.github.io/hermit/usage/get-started/) to install it first. Once Hermit is installed, you can install the Kotlin Formatter CLI using:
 ```bash
-https://repo1.maven.org/maven2/xyz/block/kotlin-formatter/kotlin-formatter/$version/kotlin-formatter-$version-all.jar
+
+hermit install kotlin-format
+```
+Once installed, you can run the CLI with:
+```bash
+kotlin-format [OPTIONS] [FILES...]
 ```
 
-After downloading, you can run the CLI using the following command:
-
+### 2. Downloading the pre-packaged distribution with a script
+A pre-packaged distribution is available on [Maven Central](https://repo1.maven.org/maven2/xyz/block/kotlin-formatter/kotlin-formatter-dist/) and [GitHub Releases](https://github.com/block/kotlin-formatter/releases)
+```bash
+VERSION=X.Y.Z
+curl -L -o kotlin-formatter-dist.zip https://github.com/block/kotlin-formatter/releases/download/$VERSION/kotlin-formatter-dist-$VERSION.zip
+unzip kotlin-formatter-dist.zip
+cd kotlin-format-shadow-$VERSION
+```
+Once downloaded and extracted, you can run the CLI with:
+```bash
+./bin/kotlin-format [OPTIONS] [FILES...]
+```
+    
+### 3. Downloading the JAR manually
+A fat JAR of the CLI is available on [Maven Central](https://repo1.maven.org/maven2/xyz/block/kotlin-formatter/kotlin-formatter/) and [GitHub Releases](https://github.com/block/kotlin-formatter/releases). Once downloaded, you can run the CLI with:
 ```bash
 java -jar path/to/kotlin-formatter-$version-all.jar [OPTIONS] [FILES...]
 ```
