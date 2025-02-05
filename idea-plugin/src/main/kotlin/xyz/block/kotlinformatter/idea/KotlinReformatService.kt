@@ -128,6 +128,6 @@ class KotlinReformatService : AsyncDocumentFormattingService() {
 
   companion object {
     private val LOG = Logger.getInstance(KotlinReformatService::class.java)
-    private const val FORMATTING_IGNORE_FILE = "git-hooks/formatting-ignore.txt"
+    private const val FORMATTING_IGNORE_FILE = ".kotlin-formatter-ignore"
   }
 }
