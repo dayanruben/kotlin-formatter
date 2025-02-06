@@ -3,6 +3,7 @@ package xyz.block.kotlinformatter.idea
 import com.intellij.codeInsight.actions.onSave.FormatOnSaveOptions
 import com.intellij.formatting.FormattingContext
 import com.intellij.formatting.service.AsyncDocumentFormattingService
+import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -30,6 +31,11 @@ class FormatOnSaveListener(private val project: Project, private val formatter: 
   private val processedDocuments = ConcurrentHashMap.newKeySet<Document>()
 
   override fun beforeDocumentSaving(document: Document) {
+    if (!project.service<FormatConfigurationService>().formattingEnabled) {
+      logger.info("Formatting is not enabled")
+      return
+    }
+
     val file: VirtualFile = FileDocumentManager.getInstance().getFile(document) ?: return
     // All open projects will receive this event, skip if the file doesn't belong to the current project.
     if (!ProjectFileIndex.getInstance(project).isInProject(file)) return
