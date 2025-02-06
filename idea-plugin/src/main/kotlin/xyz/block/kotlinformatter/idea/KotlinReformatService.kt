@@ -25,7 +25,7 @@ class KotlinReformatService : AsyncDocumentFormattingService() {
    * called.
    */
   override fun canFormat(file: PsiFile): Boolean {
-    if (!file.project.service<FormatConfigurationService>().formattingEnabled) {
+    if (!file.project.getService(FormatConfigurationService::class.java).formattingEnabled) {
       LOG.info("Formatting is not enabled")
       return false
     }
