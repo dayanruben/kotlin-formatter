@@ -10,6 +10,8 @@ import java.util.Properties
 @Service(Service.Level.PROJECT)
 class FormatConfigurationService(private val project: Project) {
 
+  // This is calculated once and on demand.
+  // Changes to the config file will require a restart.
   val formattingEnabled by lazy {
     val configFile = project.getFile(CONFIG_FILE_PATH)
     val enabled = configFile?.let { file ->
