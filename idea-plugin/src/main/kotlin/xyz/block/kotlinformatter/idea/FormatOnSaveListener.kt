@@ -3,7 +3,6 @@ package xyz.block.kotlinformatter.idea
 import com.intellij.codeInsight.actions.onSave.FormatOnSaveOptions
 import com.intellij.formatting.FormattingContext
 import com.intellij.formatting.service.AsyncDocumentFormattingService
-import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
