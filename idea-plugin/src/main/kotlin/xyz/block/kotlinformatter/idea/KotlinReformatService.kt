@@ -5,14 +5,9 @@ import com.intellij.formatting.service.AsyncFormattingRequest
 import com.intellij.formatting.service.FormattingService
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.guessProjectDir
-import com.intellij.openapi.util.io.FileUtilRt
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.findFile
 import com.intellij.psi.PsiFile
 import xyz.block.kotlinformatter.Ktfmt
-import java.io.InputStreamReader
+import xyz.block.kotlinformatter.idea.KotlinReformatService.Companion.FORMATTING_IGNORE_FILE
 
 /**
  * A service that overrides the default IntelliJ formatting behavior for Kotlin files.
@@ -29,6 +24,11 @@ class KotlinReformatService : AsyncDocumentFormattingService() {
    * called.
    */
   override fun canFormat(file: PsiFile): Boolean {
+    if (!file.project.getService(FormatConfigurationService::class.java).formattingEnabled) {
+      LOG.info("Formatting is not enabled")
+      return false
+    }
+
     if (!file.name.endsWith(".kt")) return false
 
     return !isFormattingIgnored(file)
@@ -106,25 +106,6 @@ class KotlinReformatService : AsyncDocumentFormattingService() {
 
     return false
   }
-
-  private fun Project.getFileContent(filePath: String): String? {
-    val rootDir = this.guessProjectDir()
-    if (rootDir == null) {
-      LOG.info("The project root directory is null - skipping")
-      return null
-    }
-    val file = rootDir.findFile(filePath)
-    if (file == null) {
-      LOG.info("The file at $filePath is missing")
-      return null
-    }
-    return file.loadText()
-  }
-
-  private fun VirtualFile.loadText(): String =
-    InputStreamReader(this.inputStream).use { reader ->
-      return String(FileUtilRt.loadText(reader, this.length.toInt()))
-    }
 
   companion object {
     private val LOG = Logger.getInstance(KotlinReformatService::class.java)

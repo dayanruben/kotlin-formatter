@@ -30,6 +30,11 @@ class FormatOnSaveListener(private val project: Project, private val formatter: 
   private val processedDocuments = ConcurrentHashMap.newKeySet<Document>()
 
   override fun beforeDocumentSaving(document: Document) {
+    if (!project.getService(FormatConfigurationService::class.java).formattingEnabled) {
+      logger.info("Formatting is not enabled")
+      return
+    }
+
     val file: VirtualFile = FileDocumentManager.getInstance().getFile(document) ?: return
     // All open projects will receive this event, skip if the file doesn't belong to the current project.
     if (!ProjectFileIndex.getInstance(project).isInProject(file)) return
