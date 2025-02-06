@@ -10,4 +10,4 @@ build
 .intellijPlatform/
 
 .kotlin/
-.bak
+*.bak
