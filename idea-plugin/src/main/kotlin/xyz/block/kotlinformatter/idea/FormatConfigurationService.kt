@@ -36,7 +36,7 @@ class FormatConfigurationService(private val project: Project) {
   }
 
   companion object {
-    private const val CONFIG_FILE_PATH: String = ".idea/kotlin-formater.properties"
+    private const val CONFIG_FILE_PATH: String = ".idea/kotlin-formatter.properties"
     private const val ENABLED_PROPERTY_NAME: String = "kotlin-formatter.enabled"
     private const val SCRIPT_PATH_PROPERTY_NAME: String = "kotlin-formatter.script-path"
     private val logger = Logger.getInstance(FormatConfigurationService::class.java.name)
