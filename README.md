@@ -87,3 +87,8 @@ Example:
 kotlin-formatter.enabled=true
 kotlin-formatter.script-path=bin/kotlin-format
 ```
+
+Changes to these config require an IDE restart to take effect.
+
+To enable formatting of files on save, navigate to "Settings" > "Tools" > Actions on Save", activate the "Reformat code" checkbox, and ensure that the "Kotlin" file type is selected.
+Make sure "Optimize imports" is NOT enabled for the "Kotlin" file type.
