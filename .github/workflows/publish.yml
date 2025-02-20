@@ -21,7 +21,7 @@ jobs:
       - name: Extract release version
         id: release_version
         run: |
-          VERSION=$(grep "^VERSION=" gradle.properties | cut -d'=' -f2 | xargs)
+          VERSION=$(grep "^version=" gradle.properties | cut -d'=' -f2 | xargs)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Validate tag matches release version
