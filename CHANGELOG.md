@@ -11,6 +11,15 @@
 ### Fixed:
 - Nothing yet!
 
+## [1.0.3] - 2025-02-21
+
+### New:
+- Added an idea plugin
+
+### Changed:
+- Updated ktfmt to 0.54
+- Updated many other dependencies
+
 ## [1.0.2] - 2025-01-30
 
 ### Changed:
