@@ -14,11 +14,21 @@
 ## [1.0.3] - 2025-02-21
 
 ### New:
-- Added an idea plugin
 
-### Changed:
-- Updated ktfmt to 0.54
-- Updated many other dependencies
+- **IntelliJ Plugin**: Added IntelliJ plugin for formatting support. [#33](https://github.com/block/kotlin-formatter/pull/33) by @wsutina
+  - Added configuration for using a formatting script in the IntelliJ plugin. [#42](https://github.com/block/kotlin-formatter/pull/42) by @mmollaverdi
+  - Enabled IntelliJ plugin configuration per project. [#41](https://github.com/block/kotlin-formatter/pull/41) by @mmollaverdi
+  - Enabled automatically upgrading the supported IntelliJ IDEA version. [#39](https://github.com/block/kotlin-formatter/pull/39) by @mmollaverdi
+
+### Changed
+ 
+- **Formatting Ignore File Location**: Updated the location of the formatting ignore file. [#38](https://github.com/block/kotlin-formatter/pull/38) by @wsutina
+- **Dependency Updates**:
+    - Updated `com.facebook:ktfmt` to `v0.54`. [#15](https://github.com/block/kotlin-formatter/pull/15) by @renovate
+    - Updated `com.gradleup.shadow` to `v8.3.6`. [#34](https://github.com/block/kotlin-formatter/pull/34) by @renovate
+    - Updated `org.jetbrains.intellij.platform.settings` to `v2.2.1`. [#35](https://github.com/block/kotlin-formatter/pull/35) by @renovate
+    - Updated `clikt` to `v5.0.3`. [#44](https://github.com/block/kotlin-formatter/pull/44) by @renovate
+    - Updated `dependencyAnalysis` to `v2.8.2`. [#45](https://github.com/block/kotlin-formatter/pull/45) by @renovate
 
 ## [1.0.2] - 2025-01-30
 
