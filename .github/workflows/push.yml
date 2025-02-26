@@ -45,6 +45,12 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Log Gradle cache size before Gradle tasks
+        run: df -h
+
+      - name: Log Gradle cache size before build
+        run: du -sh ~/.gradle/caches || true
+
       - name: Execute buildHealth for build-logic
         run: './gradlew -p build-logic buildHealth -s'
 
@@ -53,3 +59,15 @@ jobs:
 
       - name: Execute buildHealth for main project
         run: './gradlew buildHealth -s'
+
+      - name: Log disk space after Gradle tasks
+        if: always()
+        run: df -h
+
+      - name: Log Gradle cache size after build
+        if: always()
+        run: du -sh ~/.gradle/caches || true
+
+      - name: Log final disk usage (top 20 largest directories)
+        if: always()
+        run: du -h | sort -hr | head -n 20
