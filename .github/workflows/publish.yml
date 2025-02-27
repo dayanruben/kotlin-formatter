@@ -108,3 +108,20 @@ jobs:
           ./gradlew idea-plugin:publishPlugin
         env:
           JETBRAINS_TOKEN: ${{ secrets.JETBRAINS_MARKETPLACE_SQUARE_PLUGINS }}
+
+      # Gradle caches can exceed 45GB, potentially causing "No space left on device" errors.
+      # Clean up caches to free disk space.
+      - name: Clean up Gradle caches
+        if: always()
+        run: |
+          echo "Disk space before cleanup:"
+          df -h
+          
+          echo "Gradle cache size before cleanup:"
+          du -sh ~/.gradle/caches || true
+          
+          echo "Cleaning up Gradle caches..."
+          rm -rf ~/.gradle/caches
+          
+          echo "Disk space after cleanup:"
+          df -h
