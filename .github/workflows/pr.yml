@@ -67,3 +67,15 @@ jobs:
       - name: Log final disk usage (top 20 largest directories)
         if: always()
         run: du -h | sort -hr | head -n 20
+
+      - name: Clean up Gradle caches
+        if: always()
+        run: rm -rf ~/.gradle/caches
+
+      - name: Log disk space after cleaning up Gradle caches
+        if: always()
+        run: df -h
+
+      - name: Log Gradle cache size after cleaning up Gradle caches
+        if: always()
+        run: du -sh ~/.gradle/caches || true
