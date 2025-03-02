@@ -75,7 +75,7 @@ A fat JAR of the CLI is available on [Maven Central](https://repo1.maven.org/mav
 java -jar path/to/kotlin-formatter-$version-all.jar [OPTIONS] [FILES...]
 ```
 
-## Idea Plugin Usage
+## IntelliJ IDEA Plugin Usage
 
 A properties file can be used to configure the plugin for each project. The properties file should be named `kotlin-formatter.properties` and placed in the `.idea` of the project. The following properties are supported:
 
@@ -92,3 +92,6 @@ Changes to these config require an IDE restart to take effect.
 
 To enable formatting of files on save, navigate to "Settings" > "Tools" > Actions on Save", activate the "Reformat code" checkbox, and ensure that the "Kotlin" file type is selected.
 Make sure "Optimize imports" is NOT enabled for the "Kotlin" file type.
+
+## IntelliJ IDEA Plugin Installation
+[Download from JetBrains Marketplace](https://plugins.jetbrains.com/plugin/26482-kotlin-formatter)
