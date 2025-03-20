@@ -105,3 +105,44 @@ Make sure "Optimize imports" is NOT enabled for the "Kotlin" file type.
 
 ### IntelliJ IDEA Plugin Installation
 [Download from JetBrains Marketplace](https://plugins.jetbrains.com/plugin/26482-kotlin-formatter)
+
+## Daemon Mode
+⚠️ _Warning: daemon mode is experimental and subject to change_ ⚠️
+Formatting via the CLI involves slow Java startup. To avoid this, Kotlin Formatter can be run in daemon mode.
+```bash
+kotlin-format --daemon
+```
+
+In daemon mode, the CLI starts a server that listens for requests to format files. The port is chosen dynamically, and written to .kotlinformatter/kf.lock in the root of the git dir where kotlin-format is run.
+Only one daemon will run per git dir. If a daemon is already running, invoking `kotlin-format --daemon` will be a no-op, unless the running daemon is an older version.
+
+.kotlinformatter/kf.lock should be added to your .gitignore.
+
+The daemon only supports a limited set of formatting options compared to the CLI. To format files using the daemon, send a message containing the options:
+```bash
+pre-commit <files>
+pre-push <sha> <files>
+```
+
+The daemon will respond with a status code on the first line of the response, followed by the output of the formatting operation.
+
+A full example of using the daemon might look like this:
+```bash
+# start the daemon in the background
+nohup kotlin-format --daemon > /dev/null 2>&1 &
+# read values from lockfile
+line=$(head -n 1 "$daemon_lock_file")
+version=$(echo "$line" | cut -d ' ' -f 1)
+port=$(echo "$line" | cut -d ' ' -f 2)
+# format files
+echo pre-commit file1.kt file2.kt | nc localhost $port
+```
+
+Additionally, the daemon knows the following commands:
+```bash
+exit # stop the daemon
+status # get the status of the daemon
+```
+
+The daemon will automatically shut down after one hour of inactivity, or if it's been running for more than 24 hours.
+You can also manually shut down the daemon by sending the `exit` command, or running `kotlin-format --stop-daemon`.
