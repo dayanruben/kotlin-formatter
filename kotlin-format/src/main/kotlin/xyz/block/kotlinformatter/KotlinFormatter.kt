@@ -15,63 +15,34 @@
  */
 package xyz.block.kotlinformatter
 
-import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.core.Context
-import com.github.ajalt.clikt.core.PrintHelpMessage
-import com.github.ajalt.clikt.core.PrintMessage
-import com.github.ajalt.clikt.core.ProgramResult
-import com.github.ajalt.clikt.core.main
-import com.github.ajalt.clikt.parameters.arguments.argument
-import com.github.ajalt.clikt.parameters.arguments.multiple
-import com.github.ajalt.clikt.parameters.options.default
-import com.github.ajalt.clikt.parameters.options.flag
-import com.github.ajalt.clikt.parameters.options.option
-import xyz.block.kotlinformatter.TriggerFormatter.Companion.FormattingResult
 import java.io.InputStream
 import java.time.Duration
 import java.time.Instant
 import java.util.stream.Stream
+import kotlin.streams.toList
+import xyz.block.kotlinformatter.TriggerFormatter.Companion.FormattingResult
 
-private const val EXIT_CODE_FAILURE = 1
-private const val EXIT_CODE_BAD_ARGS = 2
-private const val EXIT_CODE_FILE_CHANGED = 3
 
-fun main(args: Array<String>) = KotlinFormatter().main(args)
 
-/**
- * Command-line interface to format Kotlin source code files.
- *
- * ## Usage:
- * ```
- * - kotlin-format [OPTIONS] <File1.kt> <File2.kt> ...
- * - kotlin-format --help
- * ```
- */
-class KotlinFormatter(private val inputStream: InputStream = System.`in`) :
-  CliktCommand(name = "kotlin-format") {
-  private val files: List<String> by argument(help = HELP_FILES).multiple()
-  private val setExitIfChanged: Boolean by
-    option("--set-exit-if-changed", help = HELP_SET_EXIT_IF_CHANGED).flag(default = false)
-  private val dryRun: Boolean by option("--dry-run", help = HELP_DRY_RUN).flag(default = false)
-  private val preCommit: Boolean by option("--pre-commit", help = HELP_PRE_COMMIT).flag(default = false)
-  private val prePush: Boolean by option("--pre-push", help = HELP_PRE_PUSH).flag(default = false)
-  private val pushCommit: String by option("--push-commit", help = HELP_PUSH_COMMIT).default("HEAD")
-  private val stats: Boolean by
-    option("--print-stats", help = HELP_PRINT_STATS, envvar = "KOTLIN_FORMATTER_STATS").flag(default = false)
+class KotlinFormatter(
+  private val files: List<String>,
+  private val dryRun: Boolean = false,
+  private val preCommit: Boolean = false,
+  private val prePush: Boolean = false,
+  private val pushCommit: String = "HEAD",
+  private val stats: Boolean = false,
+  private val inputStream: InputStream = System.`in`,
+  private val outputCallback: (String) -> Unit = { print(it) }
+) {
 
-  override fun help(context: Context) = HELP_MESSAGE
-
-  override fun run() {
+  fun format(): FormattingCommandResult {
     // 1. Validate inputs
     if (files.isEmpty()) {
-      throw PrintHelpMessage(this.currentContext)
+      throw IllegalArgumentException("No files to format")
     }
+
     if (preCommit && prePush) {
-      // These two options are mutually exclusive
-      throw PrintMessage("--pre-push and --pre-commit are mutually exclusive", EXIT_CODE_BAD_ARGS, true)
-    }
-    if (prePush && !dryRun) {
-      throw PrintMessage("--pre-push without --dry-run is currently unsupported", EXIT_CODE_BAD_ARGS, true)
+      throw IllegalArgumentException("--pre-push and --pre-commit are mutually exclusive")
     }
 
     val timeStart = Instant.now()
@@ -80,7 +51,7 @@ class KotlinFormatter(private val inputStream: InputStream = System.`in`) :
     // 2. Create configs from args
     val formattingConfigs =
       if (stdStreamsMode) {
-        FormattingConfigs.forStdStreams(inputStream) { echo(it, trailingNewline = false) }
+        FormattingConfigs.forStdStreams(inputStream, outputCallback)
       } else if (preCommit) {
         FormattingConfigs.forPreCommit(files, dryRun)
       } else if (prePush) {
@@ -102,7 +73,7 @@ class KotlinFormatter(private val inputStream: InputStream = System.`in`) :
 
     val timeFormatted = Instant.now()
 
-    // Making a single string and outputting it once is much faster than calling echo for each
+    // Making a single string and outputting it once is much faster than calling outputCallback for each
     // result individually
     val output = StringBuilder()
 
@@ -139,51 +110,28 @@ class KotlinFormatter(private val inputStream: InputStream = System.`in`) :
       )
     }
 
-    // Do not output anything apart from formatted code when in stdStreamsMode
-    if (!stdStreamsMode || dryRun) {
-      echo(output, trailingNewline = false)
+    val timeEnd = Instant.now()
 
-      val timeEnd = Instant.now()
-      if (stats) {
-        echo("Time to configure: ${Duration.between(timeStart, timeConfigged).toNanos() / 1.0e6f}ms", err = true)
-        echo("   Time to format: ${Duration.between(timeConfigged, timeFormatted).toNanos() / 1.0e6f}ms", err = true)
-        echo("   Time to report: ${Duration.between(timeFormatted, timeEnd).toNanos() / 1.0e6f}ms", err = true)
-        echo("Formattable count: ${formattingConfigs.formattables.size}", err = true)
-        echo(
-          "       Blob count: ${formattingConfigs.formattables.filterIsInstance<FormattableBlob>().size}",
-          err = true,
-        )
-        echo(
-          "       File count: ${formattingConfigs.formattables.filterIsInstance<FormattableFile>().size}",
-          err = true,
-        )
-        echo("  Chars processed: ${formatter.charsProcessed()}", err = true)
-      }
-    }
+    val formattingStats = if (stats) {
+      FormattingStats(
+        configurationTimeMs = Duration.between(timeStart, timeConfigged).toNanos() / 1.0e6f,
+        formattingTimeMs = Duration.between(timeConfigged, timeFormatted).toNanos() / 1.0e6f,
+        reportingTimeMs = Duration.between(timeFormatted, timeEnd).toNanos() / 1.0e6f,
+        formattableCount = formattingConfigs.formattables.size,
+        blobCount = formattingConfigs.formattables.filterIsInstance<FormattableBlob>().size,
+        fileCount = formattingConfigs.formattables.filterIsInstance<FormattableFile>().size,
+        charsProcessed = formatter.charsProcessed()
+      )
+    } else null
 
-    if (hasFailure) {
-      throw ProgramResult(EXIT_CODE_FAILURE)
-    }
-
-    if (setExitIfChanged && hasFileChanged) {
-      throw ProgramResult(EXIT_CODE_FILE_CHANGED)
-    }
+    return FormattingCommandResult(
+      output = output.toString(),
+      hasFailure = hasFailure,
+      hasFileChanged = hasFileChanged,
+      stats = formattingStats
+    )
   }
 
   // Stream doesn't have a toSortedSet() method, so we need to convert it to a list first.
   private fun <E : Comparable<E>> Stream<E>.toSortedSet() = toList().toSortedSet()
-
-  companion object {
-    const val HELP_MESSAGE = "Command-line interface to format Kotlin source code files."
-    const val HELP_FILES = "Files or directory to format."
-    const val HELP_SET_EXIT_IF_CHANGED =
-      "Set the program to exit with a non-zero exit code if any files needed to be changed."
-    const val HELP_DRY_RUN = "Displays the changes that would be made but does not write the changes to disk."
-    const val HELP_PRE_COMMIT =
-      "Format staged files as part of the pre-commit process. Mutually exclusive with --pre-push."
-    const val HELP_PRE_PUSH =
-      "Check committed files as part of the pre-push process. Mutually exclusive with --pre-commit."
-    const val HELP_PUSH_COMMIT = "The SHA of the commit to use for pre-push. Defaults to 'HEAD'."
-    const val HELP_PRINT_STATS = "Emit performance-related statistics to help diagnose performance issues."
-  }
 }

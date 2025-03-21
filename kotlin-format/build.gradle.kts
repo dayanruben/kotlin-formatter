@@ -44,7 +44,7 @@ tasks.withType<JavaCompile> {
 }
 
 application {
-  mainClass.set("xyz.block.kotlinformatter.KotlinFormatterKt")
+  mainClass.set("xyz.block.kotlinformatter.CliKt")
 }
 
 group = providers.gradleProperty("group").get()
