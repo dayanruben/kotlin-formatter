@@ -14,7 +14,6 @@ dependencies {
   implementation(libs.clikt)
   implementation(libs.cliktCore)
   implementation(libs.ktfmt)
-  implementation(libs.kotlinxCoroutinesCore)
 
   testImplementation(libs.junitApi)
   testImplementation(libs.assertj)
