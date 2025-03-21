@@ -214,12 +214,12 @@ class DaemonTest {
         break
       }
 
-      // Only send a status command if we're not close to the max runtime timeout, otherwise we risk
+      // Only send a command if we're not close to the max runtime timeout, otherwise we risk
       // sending the message to a closed socket and causing an exception
       if (Duration.between(startTime, Instant.now()).seconds < MAX_RUNTIME.seconds - IDLE_TIMEOUT.seconds) {
         // Postpone idle timeout so we hit the max runtime timeout instead
         Socket("localhost", daemonData!!.port).use { socket ->
-          socket.getOutputStream().write("status\n".toByteArray())
+          socket.getOutputStream().write("pre-commit foo.kt\n".toByteArray())
           socket.getInputStream().bufferedReader().readText()
         }
       }

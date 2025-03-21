@@ -36,12 +36,12 @@ class Daemon(
     val totalRuntime = Duration.between(startTime, now)
 
     if (idleTime >= idleTimeout) {
-      println("Shutting down due to inactivity (${idleTime.seconds}s idle)")
+      System.err.println("Shutting down due to inactivity (${idleTime.seconds}s idle)")
       return true
     }
 
     if (totalRuntime >= maxRuntime) {
-      println("Shutting down due to maximum runtime exceeded (${totalRuntime.seconds}s)")
+      System.err.println("Shutting down due to maximum runtime exceeded (${totalRuntime.seconds}s)")
       return true
     }
 
@@ -56,7 +56,7 @@ class Daemon(
           cleanup()
           systemExiter.exit(0)
         }
-        Thread.sleep(timeoutCheckerInterval.seconds)
+        Thread.sleep(timeoutCheckerInterval.toMillis())
       }
     }
   }
@@ -80,7 +80,7 @@ class Daemon(
       lock = lockFile?.channel?.tryLock()
 
       if (lock == null) {
-        println("Daemon is already running")
+        System.err.println("Daemon is already running")
         cleanup()
         return
       }
@@ -106,8 +106,6 @@ class Daemon(
       while (true) {
         try {
           val clientSocket: Socket = serverSocket!!.accept()
-          // Update last command time when a connection is received
-          lastCommandTime = Instant.now()
 
           clientSocket.getInputStream().bufferedReader().use { reader ->
             val message = reader.readLine()
@@ -135,6 +133,7 @@ class Daemon(
                 }
 
                 "pre-commit" -> {
+                  lastCommandTime = Instant.now()
                   val files = messageParts.drop(1)
                   val result = KotlinFormatter(files = files, preCommit = true).format()
                   val exitCode = if (result.hasFailure) ExitCode.FAILURE else ExitCode.SUCCESS
@@ -142,6 +141,7 @@ class Daemon(
                 }
 
                 "pre-push" -> {
+                  lastCommandTime = Instant.now()
                   val pushCommit = messageParts[1]
                   val files = messageParts.drop(2)
                   val result =
@@ -164,7 +164,7 @@ class Daemon(
           clientSocket.close()
         } catch (e: Exception) {
           if (!serverSocket?.isClosed!!) {
-            println("Error handling client connection: ${e.message}")
+            System.err.println("Error handling client connection: ${e.message}")
             e.printStackTrace()
           }
           // If the socket is closed (due to timeout), break the loop
@@ -174,7 +174,7 @@ class Daemon(
         }
       }
     } catch (e: Exception) {
-      println("Error in daemon: ${e.message}")
+      System.err.println("Error in daemon: ${e.message}")
       cleanup()
       throw e
     }
@@ -190,7 +190,7 @@ class Daemon(
         lockFilePath.deleteExisting()
       }
     } catch (e: Exception) {
-      println("Error during cleanup: ${e.message}")
+      System.err.println("Error during cleanup: ${e.message}")
     } finally {
       lock = null
       lockFile = null
@@ -203,7 +203,7 @@ class Daemon(
   fun stop() {
     val daemonData = readLockFile()
     if (daemonData == null) {
-      println("Daemon is not running")
+      System.err.println("Daemon is not running")
       return
     }
 
@@ -212,7 +212,7 @@ class Daemon(
         socket.getOutputStream().write("exit\n".toByteArray())
       }
     } catch (e: Exception) {
-      println("Error stopping daemon: ${e.message}")
+      System.err.println("Error stopping daemon: ${e.message}")
       // If we can't connect to the daemon, it might have crashed
       // Try to clean up the lock file
       if (lockFilePath.toFile().exists()) {
@@ -231,7 +231,7 @@ class Daemon(
       val parts = lockFilePath.toFile().readText().split(" ")
       DaemonData(parts[0].toInt(), parts[1].toInt())
     } catch (e: Exception) {
-      println("Error reading lock file: ${e.message}")
+      System.err.println("Error reading lock file: ${e.message}")
       null
     }
   }

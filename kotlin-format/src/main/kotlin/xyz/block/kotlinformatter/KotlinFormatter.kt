@@ -32,7 +32,7 @@ class KotlinFormatter(
   private val pushCommit: String = "HEAD",
   private val stats: Boolean = false,
   private val inputStream: InputStream = System.`in`,
-  private val outputCallback: (String) -> Unit = { println(it) }
+  private val outputCallback: (String) -> Unit = { print(it) }
 ) {
 
   fun format(): FormattingCommandResult {
