@@ -48,24 +48,8 @@ internal data class FormattingConfigs private constructor(val formattables: List
         gitRelativePaths = emptyList()
       }
 
-      val stagedFiles =
-        GitStagingService.getStagedFiles()
-          .filter { path -> gitRelativePaths.isEmpty() || gitRelativePaths.any { path.startsWith(it) } }
-          .toSet()
-
-      val unstagedFiles =
-        GitStagingService.getUnstagedFiles()
-          .filter { path -> gitRelativePaths.isEmpty() || gitRelativePaths.any { path.startsWith(it) } }
-          .toSet()
-
-      val formattableBlobs = GitStagingService.getStagedFormattableBlobs(rootPath.toFile(), stagedFiles)
-      val formattableFiles =
-        (stagedFiles - unstagedFiles).map {
-          val absolutePath = rootPath.resolve(it).normalize()
-          FormattableFile(absolutePath.toFile(), rootPath)
-        }
-
-      return formattableBlobs + formattableFiles
+      val formattables = GitStagingService.getStagedFormattableObjects(rootPath, gitRelativePaths)
+      return formattables
     }
 
     private fun expandFileNamesFromCommitted(commitRef: String, paths: List<String>): List<Formattable> {
