@@ -24,6 +24,34 @@ internal object GitStagingService {
       .toSet()
   }
 
+  fun getStagedFormattableObjects(gitRoot: Path, pathFilters: List<Path>): List<Formattable> {
+    val formattables = mutableListOf<Formattable>()
+    GitProcessRunner.run("status", "--porcelain=2", "--untracked-files=no", workingDir = gitRoot.toFile()).trim().lines().forEach { line ->
+      val type = line[0]
+      // Only handle modifications or moves; we don't care about unmerged or untracked files
+      if (type == '1' || type == '2') {
+        val tokens = line.split(" ", limit = 9)
+        val modificationType = tokens[1]
+        val stagedModificationType = modificationType[0]
+        val unstagedModificationType = modificationType[1]
+        val modeForIndex = tokens[4]
+        val hashForIndex = tokens[7]
+        val path = Path(tokens[8])
+
+        if (stagedModificationType in setOf('A', 'C', 'M', 'R') && path.extension == "kt") {
+          if (pathFilters.isEmpty() || pathFilters.any { path.startsWith(it) }) {
+            formattables.add(FormattableBlob(path, modeForIndex, hashForIndex))
+            if (unstagedModificationType == '.') {
+              val absolutePath = gitRoot.resolve(path).normalize()
+              formattables.add(FormattableFile(absolutePath.toFile(), gitRoot))
+            }
+          }
+        }
+      }
+    }
+    return formattables
+  }
+
   /** Retrieves a list of [FormattableBlob]s for files that are staged without any merge conflicts. */
   fun getStagedFormattableBlobs(gitRoot: File, stagedPaths: Set<Path>): List<FormattableBlob> {
     val whitespace = Regex("\\s+")
