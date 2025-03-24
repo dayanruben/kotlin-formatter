@@ -38,8 +38,8 @@ internal object GitStagingService {
         val hashForIndex = tokens[7]
         val path = Path(tokens[8])
 
-        if (pathFilters.isEmpty() || pathFilters.any { path.startsWith(it) }) {
-          if (stagedModificationType in setOf('A', 'C', 'M', 'R') && path.extension == "kt") {
+        if (stagedModificationType in setOf('A', 'C', 'M', 'R') && path.extension == "kt") {
+          if (pathFilters.isEmpty() || pathFilters.any { path.startsWith(it) }) {
             formattables.add(FormattableBlob(path, modeForIndex, hashForIndex))
             if (unstagedModificationType == '.') {
               val absolutePath = gitRoot.resolve(path).normalize()
