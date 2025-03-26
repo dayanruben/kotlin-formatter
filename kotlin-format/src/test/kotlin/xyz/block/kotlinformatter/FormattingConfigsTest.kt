@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 
 class FormattingConfigsTest {
+
   @Test
   fun `convert list of filenames to files`(@TempDir tempDir: File) {
     // Create server directory and files
@@ -88,11 +89,11 @@ class FormattingConfigsTest {
       GitProcessRunner.run("add", serverExample1.toString(), serverExample2.toString(), buildExample.toString())
 
       val configs = FormattingConfigs.forPreCommit(listOf())
-      assertThat(configs.formattables.filterIsInstance<FormattableBlob>())
+      assertThat(getFormattableBlobPaths(configs.formattables))
         .containsExactlyInAnyOrder(
-          TestFixtures.blob(serverExample1.relativeTo(serverDir).path),
-          TestFixtures.blob(serverExample2.relativeTo(serverDir).path),
-          TestFixtures.blob(buildExample.relativeTo(serverDir).path),
+          serverExample1.relativeTo(serverDir).toPath(),
+          serverExample2.relativeTo(serverDir).toPath(),
+          buildExample.relativeTo(serverDir).toPath(),
         )
     }
   }
@@ -117,8 +118,8 @@ class FormattingConfigsTest {
       GitProcessRunner.run("add", serverExample1.toString(), serverExample2.toString(), buildExample.toString())
 
       val configs = FormattingConfigs.forPreCommit(listOf("subdir"))
-      assertThat(configs.formattables.filterIsInstance<FormattableBlob>())
-        .containsExactlyInAnyOrder(TestFixtures.blob(serverExample2.relativeTo(serverDir).path))
+      assertThat(getFormattableBlobPaths(configs.formattables))
+        .containsExactlyInAnyOrder(serverExample2.relativeTo(serverDir).toPath())
     }
   }
 
@@ -136,10 +137,10 @@ class FormattingConfigsTest {
 
       TestUtils.withWorkingDir(serverDir.resolve("some")) {
         val configs = FormattingConfigs.forPreCommit(listOf())
-        assertThat(configs.formattables.filterIsInstance<FormattableBlob>())
+        assertThat(getFormattableBlobPaths(configs.formattables))
           .containsExactlyInAnyOrder(
-            TestFixtures.blob(serverExample1.relativeTo(serverDir).path),
-            TestFixtures.blob(serverExample2.relativeTo(serverDir).path),
+            serverExample1.relativeTo(serverDir).toPath(),
+            serverExample2.relativeTo(serverDir).toPath(),
           )
       }
     }
@@ -161,17 +162,17 @@ class FormattingConfigsTest {
         // This simulates running `format --pre-commit .` inside the `server/some` directory,
         // so only the Example2.kt file should be included in the formattables.
         val configs = FormattingConfigs.forPreCommit(listOf("."))
-        assertThat(configs.formattables.filterIsInstance<FormattableBlob>())
-          .containsExactlyInAnyOrder(TestFixtures.blob(serverExample2.relativeTo(serverDir).path))
+        assertThat(getFormattableBlobPaths(configs.formattables))
+          .containsExactlyInAnyOrder(serverExample2.relativeTo(serverDir).toPath())
       }
       TestUtils.withWorkingDir(serverDir.resolve("some")) {
         // This simulates running `format --pre-commit ..` inside the `server/some` directory,
         // so both files should be included in the formattables.
         val configs = FormattingConfigs.forPreCommit(listOf(".."))
-        assertThat(configs.formattables.filterIsInstance<FormattableBlob>())
+        assertThat(getFormattableBlobPaths(configs.formattables))
           .containsExactlyInAnyOrder(
-            TestFixtures.blob(serverExample1.relativeTo(serverDir).path),
-            TestFixtures.blob(serverExample2.relativeTo(serverDir).path),
+            serverExample1.relativeTo(serverDir).toPath(),
+            serverExample2.relativeTo(serverDir).toPath(),
           )
       }
     }
@@ -200,19 +201,28 @@ class FormattingConfigsTest {
         // This simulates running `format --pre-push .` inside the `server/some` directory,
         // so only the Example2.kt file should be included in the formattables.
         val configs = FormattingConfigs.forPrePush(listOf("."), dryRun = true, commitRef = "HEAD")
-        assertThat(configs.formattables.filterIsInstance<FormattableBlob>())
-          .containsExactlyInAnyOrder(TestFixtures.blob(serverExample2.relativeTo(serverDir).path))
+        assertThat(getFormattableBlobPaths(configs.formattables))
+          .containsExactlyInAnyOrder(serverExample2.relativeTo(serverDir).toPath())
       }
       TestUtils.withWorkingDir(serverDir.resolve("some")) {
         // This simulates running `format --pre-push ..` inside the `server/some` directory,
         // so both files should be included in the formattables.
         val configs = FormattingConfigs.forPrePush(listOf(".."), dryRun = true, commitRef = "HEAD")
-        assertThat(configs.formattables.filterIsInstance<FormattableBlob>())
+        assertThat(getFormattableBlobPaths(configs.formattables))
           .containsExactlyInAnyOrder(
-            TestFixtures.blob(serverExample1.relativeTo(serverDir).path),
-            TestFixtures.blob(serverExample2.relativeTo(serverDir).path),
+            serverExample1.relativeTo(serverDir).toPath(),
+            serverExample2.relativeTo(serverDir).toPath(),
           )
       }
     }
   }
+
+  private fun getFormattableBlobPaths(formattables: List<Formattable>) = formattables.map { formattable ->
+    when (formattable) {
+      is FormattableBlob -> formattable.path
+      is FormattableBlobAndFile -> formattable.path()
+      else -> throw IllegalStateException("Unexpected formattable type: ${formattable.javaClass}")
+    }
+  }
+
 }
