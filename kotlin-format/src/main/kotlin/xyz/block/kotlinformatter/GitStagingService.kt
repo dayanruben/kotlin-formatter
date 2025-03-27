@@ -40,14 +40,15 @@ internal object GitStagingService {
 
         if (stagedModificationType in setOf('A', 'C', 'M', 'R') && path.extension == "kt") {
           if (pathFilters.isEmpty() || pathFilters.any { path.startsWith(it) }) {
-            val absolutePath = gitRoot.resolve(path).normalize()
+            val blob = FormattableBlob(path, modeForIndex, hashForIndex)
             if (unstagedModificationType == '.') {
+              val absolutePath = gitRoot.resolve(path).normalize()
               formattables.add(FormattableBlobAndFile(
-                blob = FormattableBlob(path, modeForIndex, hashForIndex),
+                blob = blob,
                 file = FormattableFile(absolutePath.toFile(), gitRoot),
               ))
             } else {
-              formattables.add(FormattableBlob(path, modeForIndex, hashForIndex))
+              formattables.add(blob)
             }
           }
         }
