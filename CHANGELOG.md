@@ -11,6 +11,15 @@
 ### Fixed:
 - Nothing yet!
 
+## [1.1.0] - 2025-03-27
+
+### New:
+- **Daemon mode** Added new long-running mode for better performance. [#67](https://github.com/block/kotlin-formatter/pull/67) by @yissachar
+
+### Changed:
+- Some performance optimizations [#71](https://github.com/block/kotlin-formatter/pull/71) and [#75](https://github.com/block/kotlin-formatter/pull/75) by @yissachar
+- Various dependency updates
+
 ## [1.0.3] - 2025-02-21
 
 ### New:
