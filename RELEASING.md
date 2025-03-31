@@ -59,13 +59,3 @@ Releases of the IntelliJ IDEA plugin are subject to JetBrains' manual approval f
    $ git commit -am "chore: prepare next development version."
    ```
 3. Push the branch and create a pull request.
-
-
-## 3. Prepare for the Next Development Cycle
-
-1. Once the publish is done, update version number `gradle.properties` to next snapshot version (`x.y.z-SNAPSHOT`).
-2. Commit:
-   ```sh
-   $ git commit -am "chore: prepare next development version."
-   ```
-3. Push the branch and create a pull request.
