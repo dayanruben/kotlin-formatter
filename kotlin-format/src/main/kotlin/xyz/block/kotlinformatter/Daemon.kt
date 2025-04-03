@@ -13,8 +13,8 @@ import kotlin.concurrent.thread
 
 class Daemon(
   private val systemExiter: SystemExiter = RealSystemExiter(),
-  private val idleTimeout: Duration = Duration.ofHours(1),
-  private val maxRuntime: Duration = Duration.ofDays(1),
+  private val idleTimeout: Duration = Duration.ofDays(1),
+  private val maxRuntime: Duration = Duration.ofDays(7),
   private val timeoutCheckerInterval: Duration = Duration.ofMinutes(1),
   private val workingDir: Path = rootGitPath,
   private val version: Int = DAEMON_VERSION
