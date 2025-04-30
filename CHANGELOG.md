@@ -11,6 +11,11 @@
 ### Fixed:
 - Nothing yet!
 
+## [1.2.0] - 2025-04-30
+
+### Changed:
+- Upgrade the supported IntelliJ versions to the 2024.1 to 2025.1 range
+
 ## [1.1.0] - 2025-03-27
 
 ### New:
