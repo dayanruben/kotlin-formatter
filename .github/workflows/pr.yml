@@ -44,7 +44,13 @@ jobs:
       - name: Execute buildHealth for build-logic
         run: './gradlew -p build-logic buildHealth -s'
 
-           # Gradle caches can exceed 45GB, potentially causing "No space left on device" errors.
+      - name: Execute check
+        run: './gradlew check -s'
+
+      - name: Execute buildHealth for main project
+        run: './gradlew buildHealth -s'
+
+      # Gradle caches can exceed 45GB, potentially causing "No space left on device" errors.
       # Clean up caches to free disk space.
       - name: Clean up Gradle caches
         if: always()
@@ -60,9 +66,3 @@ jobs:
           
           echo "Disk space after cleanup:"
           df -h
-
-      - name: Execute check
-        run: './gradlew check -s'
-
-      - name: Execute buildHealth for main project
-        run: './gradlew buildHealth -s'
