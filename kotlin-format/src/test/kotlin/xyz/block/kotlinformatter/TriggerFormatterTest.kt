@@ -140,4 +140,31 @@ class TriggerFormatterTest {
       assertThat(file.readText()).isEqualTo(unformattedCode)
     }
   }
+
+  @Test
+  fun `handles moved files correctly between pre-commit and pre-push`(@TempDir tempDir: File) {
+    TestUtils.withWorkingDir(tempDir) {
+      // 1. Create and commit an unformatted file
+      val originalFile = setupTestFile(tempDir, unformattedCode)
+      TestUtils.setupGitUser()
+      GitProcessRunner.run("commit", "-m", "Initial commit with unformatted file")
+
+      // 2. Move the file using Git commands
+      val newFileName = "Test2.kt"
+      GitProcessRunner.run("mv", originalFile.path, newFileName)
+
+      // 3. pre-commit check should format
+      val preCommitConfigs = FormattingConfigs.forPreCommit(listOf())
+      val preCommitResult = preCommitConfigs.formattables.map { TriggerFormatter(testFormatter).format(it, preCommitConfigs) }.toSet()
+      assertThat(preCommitResult).containsExactly(FormattingResult.Formatted(newFileName))
+
+      // 4. Commit the move
+      GitProcessRunner.run("commit", "-m", "Move file")
+
+      // 5. pre-push check should detect already formatted
+      val prePushConfigs = FormattingConfigs.forPrePush(listOf(), dryRun = true, commitRef = "HEAD")
+      val prePushResult = prePushConfigs.formattables.map { TriggerFormatter(testFormatter).format(it, prePushConfigs) }.toSet()
+      assertThat(prePushResult).containsExactly(FormattingResult.AlreadyFormatted(newFileName))
+    }
+  }
 }
