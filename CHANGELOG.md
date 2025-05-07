@@ -11,6 +11,11 @@
 ### Fixed:
 - Nothing yet!
 
+## [1.2.1] - 2025-05-07
+
+### Fixed:
+- Fixed bug with formatting moved files in pre-commit mode
+
 ## [1.2.0] - 2025-04-30
 
 ### Changed:
