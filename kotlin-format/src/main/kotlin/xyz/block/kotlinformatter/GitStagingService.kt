@@ -26,22 +26,55 @@ internal object GitStagingService {
 
   fun getStagedFormattableObjects(gitRoot: Path, pathFilters: List<Path>): List<Formattable> {
     val formattables = mutableListOf<Formattable>()
-    GitProcessRunner.run("status", "--porcelain=2", "--untracked-files=no", workingDir = gitRoot.toFile()).trim().lines().forEach { line ->
-      val type = line[0]
-      // Only handle modifications or moves; we don't care about unmerged or untracked files
-      if (type == '1' || type == '2') {
-        val tokens = line.split(" ", limit = 9)
-        val modificationType = tokens[1]
-        val stagedModificationType = modificationType[0]
-        val unstagedModificationType = modificationType[1]
-        val modeForIndex = tokens[4]
-        val hashForIndex = tokens[7]
-        val path = Path(tokens[8])
+    val parts = GitProcessRunner.run("status", "--porcelain=2", "--untracked-files=no", "-z", workingDir = gitRoot.toFile())
+      .trim()
+      .split('\u0000')
+      .filter { it.isNotEmpty() }
 
-        if (stagedModificationType in setOf('A', 'C', 'M', 'R') && path.extension == "kt") {
+    val gitChanges = mutableListOf<GitChange>()
+    var i = 0
+    while (i < parts.size) {
+      val line = parts[i]
+      when (line[0]) {
+        '1' -> {
+          val tokens = line.split(" ", limit = 9)
+          val modificationType = tokens[1]
+          gitChanges.add(
+            GitChange(
+              path = Path(tokens[8]),
+              mode = tokens[4],
+              hash = tokens[7],
+              stagedModificationType = modificationType[0],
+              unstagedModificationType = modificationType[1],
+            )
+          )
+        }
+
+        '2' -> {
+          val tokens = line.split(" ", limit = 10)
+          val modificationType = tokens[1]
+          gitChanges.add(
+            GitChange(
+              path = Path(tokens[9]),
+              mode = tokens[4],
+              hash = tokens[7],
+              stagedModificationType = modificationType[0],
+              unstagedModificationType = modificationType[1],
+            )
+          )
+          // in a rename, we get a separate entry for the original path, skip it
+          i++
+        }
+      }
+      i++
+    }
+
+    gitChanges.forEach { gitChange ->
+      val path = gitChange.path
+      if (gitChange.stagedModificationType in setOf('A', 'C', 'M', 'R') && path.extension == "kt") {
           if (pathFilters.isEmpty() || pathFilters.any { path.startsWith(it) }) {
-            val blob = FormattableBlob(path, modeForIndex, hashForIndex)
-            if (unstagedModificationType == '.') {
+            val blob = FormattableBlob(path, gitChange.mode, gitChange.hash)
+            if (gitChange.unstagedModificationType == '.') {
               val absolutePath = gitRoot.resolve(path).normalize()
               formattables.add(FormattableBlobAndFile(
                 blob = blob,
@@ -53,7 +86,6 @@ internal object GitStagingService {
           }
         }
       }
-    }
     return formattables
   }
 
@@ -94,3 +126,11 @@ internal object GitStagingService {
     }
   }
 }
+
+data class GitChange(
+  val path: Path,
+  val mode: String,
+  val hash: String,
+  val stagedModificationType: Char,
+  val unstagedModificationType: Char,
+)
