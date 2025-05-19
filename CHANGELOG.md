@@ -11,6 +11,12 @@
 ### Fixed:
 - Nothing yet!
 
+## [1.2.2] - 2025-05-20
+
+### Changed:
+- Update all non-major dependencies
+- Update publication to Sonatype Central Portal 
+
 ## [1.2.1] - 2025-05-07
 
 ### Fixed:
