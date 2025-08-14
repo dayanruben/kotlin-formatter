@@ -1,3 +1,4 @@
+import kotlinx.coroutines.selects.select
 import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 
 plugins {
@@ -53,7 +54,6 @@ intellijPlatform {
   }
   pluginVerification {
     ides {
-      recommended()
       select {
         types = listOf(
           IntelliJPlatformType.IntellijIdeaCommunity,
