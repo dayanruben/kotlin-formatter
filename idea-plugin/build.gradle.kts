@@ -10,7 +10,7 @@ dependencies {
   implementation(libs.kotlinStdLib)
   intellijPlatform {
     intellijIdeaUltimate("2024.3.2")
-    pluginVerifier("1.381")
+    pluginVerifier("1.393")
   }
 }
 
@@ -26,8 +26,8 @@ kotlin {
 }
 
 val pluginName = "kotlin-formatter"
-val sinceIdeVersion = "241.19416.15" // corresponds to 2024.1.x versions
-val sinceBuildMajorVersion = sinceIdeVersion.substringBefore('.')
+val sinceIdeVersionForVerification = "243.21565.193" // corresponds to the 2024.3 version
+val sinceBuildMajorVersion = "241" // corresponds to 2024.1.x versions
 val untilIdeVersion = properties["IIC.release.version"] as String
 val untilBuildMajorVersion = untilIdeVersion.substringBefore('.')
 val pluginVersion = project.version.toString()
@@ -53,13 +53,12 @@ intellijPlatform {
   }
   pluginVerification {
     ides {
-      recommended()
       select {
         types = listOf(
           IntelliJPlatformType.IntellijIdeaCommunity,
           IntelliJPlatformType.IntellijIdeaUltimate
         )
-        sinceBuild = sinceIdeVersion
+        sinceBuild = sinceIdeVersionForVerification
         untilBuild = untilIdeVersion
 
       }
