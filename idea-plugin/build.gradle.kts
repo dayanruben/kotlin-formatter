@@ -1,4 +1,3 @@
-import kotlinx.coroutines.selects.select
 import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 
 plugins {
@@ -11,7 +10,7 @@ dependencies {
   implementation(libs.kotlinStdLib)
   intellijPlatform {
     intellijIdeaUltimate("2024.3.2")
-    pluginVerifier("1.381")
+    pluginVerifier("1.393")
   }
 }
 
