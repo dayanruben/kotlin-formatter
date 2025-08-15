@@ -11,6 +11,12 @@
 ### Fixed:
 - Nothing yet!
 
+## [1.3.0] - 2025-08-15
+
+### Changed:
+- Add support for IntelliJ version 2025.2
+- Various dependency updates
+
 ## [1.2.2] - 2025-05-20
 
 ### Changed:
