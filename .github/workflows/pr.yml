@@ -14,18 +14,9 @@ concurrency:
 
 jobs:
   gradle:
-    strategy:
-      matrix:
-        os: [ ubuntu-latest ]
-    runs-on: ${{ matrix.os }}
+    runs-on:
+      group: ubuntu-x86-runners
     steps:
-      # Free disk space to avoid running into "No space left on device" errors
-      # when downloading multiple versions of IntelliJ for plugin verification
-      - name: Maximize Build Space
-        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
-        with:
-          tool-cache: true
-
       - name: Checkout the repo
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
