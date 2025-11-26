@@ -102,7 +102,7 @@ There are multiple ways to install and use the Kotlin Formatter CLI:
 If you don't have Hermit installed, follow the [Hermit Getting Started Guide](https://cashapp.github.io/hermit/usage/get-started/) to install it first. Once Hermit is installed, you can install the Kotlin Formatter CLI using:
 ```bash
 
-hermit install kotlin-format
+hermit install kotlin-formatter
 ```
 Once installed, you can run the CLI with:
 ```bash
